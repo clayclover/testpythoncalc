@@ -1,9 +1,11 @@
 import tkinter as tk
-from math import *
+from math import log, cos, pi, e, sin, tan
 
 
 class Calculator:
     def __init__(self):
+        self.ans = int()
+        self.answers = []
         self.window = tk.Tk()
 
         self.window.title("Calculator")
@@ -11,7 +13,7 @@ class Calculator:
         self.window.geometry("473x441")
 
         self.display = tk.Text(
-            self.window, width= 38, height=3, borderwidth=4, bg="WHITE"
+            self.window, width=38, height=3, borderwidth=4, bg="WHITE"
         )
         self.display.grid(row=0, column=0, columnspan=5)
 
@@ -288,6 +290,14 @@ class Calculator:
             fg="#000000",
         )
 
+        self.button_35 = tk.Button(
+            self.window,
+            text="📌",
+            width=4,
+            command=lambda: self.toggleTop(),
+            bg="gray75",
+        )
+
         self.button_1.grid(row=1, column=0)
         self.button_2.grid(row=1, column=1)
         self.button_3.grid(row=1, column=2)
@@ -328,6 +338,7 @@ class Calculator:
         self.button_32.grid(row=7, column=1)
         self.button_33.grid(row=7, column=2)
         self.button_34.grid(row=7, column=3, columnspan=2)
+        self.button_35.grid(row=0, column=6)
 
         self.chars = []
 
@@ -337,7 +348,6 @@ class Calculator:
         if "\n\n" in self.display.get("1.0", "end"):
             self.display.delete("1.0", "end")
 
-        char = ""
         match button.cget("text"):
             case "log":
                 char = button.cget("text") + "("
@@ -387,9 +397,9 @@ class Calculator:
 
     def del_click(self):
         if (
-            "\n\n" in self.display.get("1.0", "end")
-            or "Syntax Error" in self.display.get("1.0", "end")
-            or "Math Error" in self.display.get("1.0", "end")
+                "\n\n" in self.display.get("1.0", "end")
+                or "Syntax Error" in self.display.get("1.0", "end")
+                or "Math Error" in self.display.get("1.0", "end")
         ):
             self.chars.clear()
         else:
@@ -404,8 +414,6 @@ class Calculator:
     def equal(self):
         self.chars.clear()
         try:
-            self.answers = []
-            value = self.display.get("1.0", "end")
             value = self.display.get("1.0", "end")
 
             if "ln" in value:
@@ -429,15 +437,18 @@ class Calculator:
             if "log" in value:
                 value = value.replace("log", "self.my_log")
             if "Ans" in value:
-                value = value.replace("Ans", "self.Ans")
+                value = value.replace("Ans", "self.ans")
 
             if value.count("(") > value.count(")"):
                 value += ")" * (value.count("(") - value.count(")"))
 
             self.display.tag_configure("right", justify="right")
-            self.display.insert(tk.END, f"\n\n{eval(value)}", "right")
+            try:
+                self.display.insert(tk.END, f"\n\n{eval(value)}", "right")
+            except Exception as exception:
+                print("Following error occurred: " + str(exception))
             self.answers.append(eval(value))
-            self.Ans = self.answers[len(self.answers) - 1]
+            self.ans = self.answers[len(self.answers) - 1]
 
         except ZeroDivisionError:
             self.display.delete("1.0", "end")
@@ -452,7 +463,7 @@ class Calculator:
             self.display.insert(tk.END, "Math Error")
 
     def my_ln(self, x):
-        return log(x) / log(e**1)
+        return log(x) / log(e ** 1)
 
     def my_cos(self, x):
         return float(f"{cos(x * pi / 180):.6f}".rstrip("0").rstrip("."))
@@ -466,5 +477,15 @@ class Calculator:
     def my_log(self, x):
         return log(x, 10)
 
+    def toggleTop(self):
+        current_state = self.window.attributes("-topmost")
+        self.window.attributes("-topmost", not current_state)
 
-Calculator()
+        if self.button_35.cget("bg") == "gray25":
+            self.button_35.configure(background="gray75")
+        else:
+            self.button_35.configure(background="gray25")
+
+
+if __name__ == '__main__':
+    Calculator()
