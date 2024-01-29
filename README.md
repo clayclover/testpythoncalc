@@ -1,4 +1,4 @@
-# testpythoncalc
+# pythoncalc
 
 actually, is a calculator. It can do what a normal scientific calculator does
 
